@@ -11,11 +11,10 @@ class BukuController extends Controller
      * Menampilkan daftar buku ke tampilan index.
      */
     public function index()
-    {
-        $bukus = Buku::all();
-        return view('buku.index', compact('bukus'));
-    }
-
+{
+    $bukus = Buku::latest()->get(); // atau ->paginate(10)
+    return view('buku.index', compact('bukus'));
+}
     /**
      * Perbaikan A2: Pencarian buku aman dari SQL Injection.
      * Menggunakan Eloquent ORM (Parameter Binding otomatis) tanpa penggabungan string mentah.
@@ -50,4 +49,30 @@ public function store(Request $request)
 
     return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
 }
+
+public function edit(Buku $buku)
+{
+    $kategoris = class_exists(\App\Models\Kategori::class) ? \App\Models\Kategori::all() : collect([]);
+    return view('buku.edit', compact('buku', 'kategoris'));
+}
+
+public function update(Request $request, Buku $buku)
+{
+    $request->validate([
+        'judul'        => 'required|string|max:255',
+        'kategori_id'  => 'nullable',
+        'penulis'      => 'required|string|max:255',
+        'tahun_terbit' => 'required|numeric',
+    ]);
+
+    $buku->update([
+        'judul'        => $request->judul,
+        'kategori_id'  => $request->kategori_id,
+        'penulis'      => $request->penulis,
+        'tahun_terbit' => $request->tahun_terbit,
+    ]);
+
+    return redirect()->route('buku.index')->with('success', 'Data buku berhasil diperbarui!');
+}
+
 }
