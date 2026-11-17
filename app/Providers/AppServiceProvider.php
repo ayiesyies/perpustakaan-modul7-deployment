@@ -6,6 +6,7 @@ use App\Models\Peminjaman;
 use App\Models\User;
 use App\Policies\PeminjamanPolicy;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         // Menggunakan hasAnyRole() sesuai package Spatie Laravel-Permission
         Gate::define('kelola-buku', function (User $user) {
             return $user->hasAnyRole(['admin', 'petugas']);
@@ -26,8 +31,3 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Peminjaman::class, PeminjamanPolicy::class);
     }
 }
-
-
-
-
-
