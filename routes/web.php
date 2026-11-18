@@ -68,7 +68,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/peminjaman/pinjam/{bukuId}', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::post('/peminjaman/admin-store', [PeminjamanController::class, 'storeAdmin'])->name('peminjaman.storeAdmin');
 
-    // Area Khusus Admin
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('users');
@@ -76,14 +75,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-    // Area Khusus Petugas & Admin
     Route::middleware(['role:petugas|admin'])->group(function () {
         Route::get('/petugas/dashboard', function () {
             return view('petugas.dashboard');
         })->name('petugas.dashboard');
     });
 
-    // Laporan Perpustakaan (Berdasarkan Permission)
     Route::middleware(['can:lihat laporan perpustakaan'])->group(function () {
         Route::get('/laporan', function () { return view('laporan.index'); })->name('laporan.index');
     });
