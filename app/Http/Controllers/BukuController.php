@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Buku;
+use App\Http\Requests\StoreBukuRequest;
+use App\Http\Requests\UpdateBukuRequest;
 
 class BukuController extends Controller
 {
@@ -37,20 +39,15 @@ class BukuController extends Controller
     }
 
     /**
-     * Menyimpan data buku baru ke database Supabase.
+     * Menyimpan data buku baru ke database Supabase menggunakan StoreBukuRequest.
      */
-    public function store(Request $request)
+    public function store(StoreBukuRequest $request)
     {
-        $validated = $request->validate([
-            'judul'        => 'required|string|max:255',
-            'kategori_id'  => 'nullable',
-            'penulis'      => 'required|string|max:255',
-            'tahun_terbit' => 'required|numeric',
-        ]);
+        $validated = $request->validated();
 
         Buku::create([
             'judul'        => $validated['judul'],
-            'kategori_id'  => $request->kategori_id,
+            'kategori_id'  => $validated['kategori_id'],
             'penulis'      => $validated['penulis'],
             'tahun_terbit' => $validated['tahun_terbit'],
         ]);
@@ -68,22 +65,17 @@ class BukuController extends Controller
     }
 
     /**
-     * Memperbarui data buku yang sudah ada.
+     * Memperbarui data buku yang sudah ada menggunakan UpdateBukuRequest.
      */
-    public function update(Request $request, Buku $buku)
+    public function update(UpdateBukuRequest $request, Buku $buku)
     {
-        $validated = $request->validate([
-            'judul'        => 'required|string|max:255',
-            'kategori_id'  => 'nullable',
-            'penulis'      => 'required|string|max:255',
-            'tahun_terbit' => 'required|numeric',
-        ]);
+        $validated = $request->validated();
 
         $buku->update([
-            'judul'        => $validated['judul'],
-            'kategori_id'  => $request->kategori_id,
-            'penulis'      => $validated['penulis'],
-            'tahun_terbit' => $validated['tahun_terbit'],
+            'judul'        => $validated['judul'] ?? $buku->judul,
+            'kategori_id'  => $validated['kategori_id'] ?? $buku->kategori_id,
+            'penulis'      => $validated['penulis'] ?? $buku->penulis,
+            'tahun_terbit' => $validated['tahun_terbit'] ?? $buku->tahun_terbit,
         ]);
 
         return redirect()->route('buku.index')->with('success', 'Data buku berhasil diperbarui!');
